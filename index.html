@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Tutor - Personalized Learning Assistant</title>
+    <title>AI Tutor - Upload PDF and Get Answers</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -18,8 +18,6 @@
                 <li><a href="#">Home</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#how-it-works">How It Works</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#contact">Contact</a></li>
             </ul>
             <div class="auth-buttons">
                 <a href="#" class="btn btn-login">Login</a>
@@ -34,40 +32,94 @@
     <main>
         <section class="hero">
             <div class="hero-content">
-                <h1>Your Personal AI Tutor</h1>
-                <p>Get 24/7 personalized learning assistance tailored to your needs and learning style.</p>
-                <div class="cta-buttons">
-                    <a href="#" class="btn btn-primary">Start Learning Now</a>
-                    <a href="#" class="btn btn-secondary">See Demo</a>
-                </div>
+                <h1>Upload Your PDF and Get Instant Answers</h1>
+                <p>Our AI tutor can read your documents and answer any questions you have about the content.</p>
+                
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for message in messages %}
+                                <div class="flash-message">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" enctype="multipart/form-data" class="upload-form">
+                    <div class="file-upload">
+                        <label for="file-upload-input" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Choose PDF File</span>
+                            <input id="file-upload-input" type="file" name="file" accept=".pdf" required>
+                        </label>
+                        <span id="file-name">No file chosen</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload Document</button>
+                </form>
             </div>
             <div class="hero-image">
-                <img src="https://via.placeholder.com/600x400" alt="AI Tutor Illustration">
+                <img src="https://via.placeholder.com/600x400" alt="AI Tutor with Documents">
             </div>
         </section>
 
+        {% if current_document %}
+        <section class="document-section">
+            <div class="document-info">
+                <h2>Current Document: {{ current_document.filename }}</h2>
+                <div class="document-actions">
+                    <form method="POST" class="question-form">
+                        <input type="hidden" name="document_id" value="{{ document_id }}">
+                        <div class="form-group">
+                            <label for="question">Ask a question about this document:</label>
+                            <textarea id="question" name="question" placeholder="What would you like to know?" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Ask AI Tutor</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if document_questions %}
+            <div class="qa-history">
+                <h3>Question & Answer History</h3>
+                <div class="qa-list">
+                    {% for qa in document_questions %}
+                    <div class="qa-item">
+                        <div class="question">
+                            <strong>Q:</strong> {{ qa.question }}
+                        </div>
+                        <div class="answer">
+                            <strong>A:</strong> {{ qa.answer }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
         <section id="features" class="features">
-            <h2>Why Choose Our AI Tutor?</h2>
+            <h2>Key Features</h2>
             <div class="features-grid">
                 <div class="feature-card">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>PDF Processing</h3>
+                    <p>Upload any PDF document and our AI will extract the text to answer your questions.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-comments"></i>
+                    <h3>Interactive Q&A</h3>
+                    <p>Ask questions in natural language and get accurate answers based on your document.</p>
+                </div>
+                <div class="feature-card">
                     <i class="fas fa-brain"></i>
-                    <h3>Adaptive Learning</h3>
-                    <p>Our AI adjusts to your learning pace and style for optimal knowledge retention.</p>
+                    <h3>Context-Aware</h3>
+                    <p>Our AI understands the context of your document for more relevant answers.</p>
                 </div>
                 <div class="feature-card">
-                    <i class="fas fa-clock"></i>
-                    <h3>24/7 Availability</h3>
-                    <p>Learn anytime, anywhere with round-the-clock access to your personal tutor.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Progress Tracking</h3>
-                    <p>Detailed analytics to monitor your improvement and identify areas for focus.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-book"></i>
-                    <h3>Multi-Subject</h3>
-                    <p>From math to languages, our AI covers a wide range of subjects.</p>
+                    <i class="fas fa-history"></i>
+                    <h3>History Tracking</h3>
+                    <p>All your questions and answers are saved for future reference.</p>
                 </div>
             </div>
         </section>
@@ -77,80 +129,24 @@
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <h3>Sign Up</h3>
-                    <p>Create your account and set up your learning profile.</p>
+                    <h3>Upload PDF</h3>
+                    <p>Upload your textbook, research paper, or any PDF document you need help with.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <h3>Choose Your Subject</h3>
-                    <p>Select from our wide range of available subjects and topics.</p>
+                    <h3>Ask Questions</h3>
+                    <p>Type your question about the document content in natural language.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <h3>Start Learning</h3>
-                    <p>Interact with your AI tutor through chat, exercises, and lessons.</p>
+                    <h3>Get Answers</h3>
+                    <p>Receive accurate, context-aware answers from our AI tutor.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
-                    <h3>Track Progress</h3>
-                    <p>Monitor your improvement with detailed analytics and reports.</p>
+                    <h3>Review & Learn</h3>
+                    <p>All your Q&A pairs are saved for you to review later.</p>
                 </div>
-            </div>
-        </section>
-
-        <section id="pricing" class="pricing">
-            <h2>Simple, Transparent Pricing</h2>
-            <div class="pricing-cards">
-                <div class="pricing-card">
-                    <h3>Basic</h3>
-                    <div class="price">$9.99<span>/month</span></div>
-                    <ul>
-                        <li>5 hours of AI tutoring</li>
-                        <li>3 subjects</li>
-                        <li>Basic progress tracking</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline">Get Started</a>
-                </div>
-                <div class="pricing-card featured">
-                    <div class="popular-badge">Most Popular</div>
-                    <h3>Pro</h3>
-                    <div class="price">$19.99<span>/month</span></div>
-                    <ul>
-                        <li>15 hours of AI tutoring</li>
-                        <li>Unlimited subjects</li>
-                        <li>Advanced analytics</li>
-                        <li>Priority support</li>
-                    </ul>
-                    <a href="#" class="btn btn-primary">Get Started</a>
-                </div>
-                <div class="pricing-card">
-                    <h3>Premium</h3>
-                    <div class="price">$29.99<span>/month</span></div>
-                    <ul>
-                        <li>Unlimited AI tutoring</li>
-                        <li>Unlimited subjects</li>
-                        <li>Premium analytics</li>
-                        <li>24/7 priority support</li>
-                        <li>Personalized learning plan</li>
-                    </ul>
-                    <a href="#" class="btn btn-outline">Get Started</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="contact" class="contact">
-            <div class="contact-content">
-                <h2>Have Questions?</h2>
-                <p>We're here to help! Contact our support team for any inquiries.</p>
-                <form class="contact-form">
-                    <input type="text" placeholder="Your Name" required>
-                    <input type="email" placeholder="Your Email" required>
-                    <textarea placeholder="Your Message" required></textarea>
-                    <button type="submit" class="btn btn-primary">Send Message</button>
-                </form>
-            </div>
-            <div class="contact-image">
-                <img src="https://via.placeholder.com/500x400" alt="Contact Us">
             </div>
         </section>
     </main>
@@ -159,13 +155,7 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>AI Tutor</h3>
-                <p>Revolutionizing education through artificial intelligence and personalized learning.</p>
-                <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
+                <p>Revolutionizing learning through AI-powered document analysis.</p>
             </div>
             <div class="footer-section">
                 <h3>Quick Links</h3>
@@ -173,25 +163,14 @@
                     <li><a href="#">Home</a></li>
                     <li><a href="#features">Features</a></li>
                     <li><a href="#how-it-works">How It Works</a></li>
-                    <li><a href="#pricing">Pricing</a></li>
-                    <li><a href="#contact">Contact</a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h3>Legal</h3>
+                <h3>Contact</h3>
                 <ul>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="mailto:support@aitutor.com">support@aitutor.com</a></li>
+                    <li><a href="#">Help Center</a></li>
                 </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Newsletter</h3>
-                <p>Subscribe to get updates on new features and learning tips.</p>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Your Email" required>
-                    <button type="submit" class="btn btn-primary">Subscribe</button>
-                </form>
             </div>
         </div>
         <div class="footer-bottom">
